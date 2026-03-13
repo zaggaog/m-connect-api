@@ -188,7 +188,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/orders/{id}', [OrderController::class, 'show']);
     
 
-    // ✅ Cancel order
+    //  Cancel order
     Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel']);
 });
 
@@ -196,7 +196,7 @@ Route::middleware('auth:api')->group(function () {
 
 
    
-// ✅ Farmer routes with role protection
+//  Farmer routes with role protection
 Route::middleware(['auth:api', 'role:farmer'])
     ->prefix('farmer')
     ->group(function () {

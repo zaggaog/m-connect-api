@@ -21,7 +21,7 @@ class ProductController extends Controller
     /**
      * Cache TTL in seconds (1 hour)
      */
-    protected $cacheTtl = 3600;
+    protected $cacheTtl = 60;
 
     /**
      * Get storage disk (R2 or public)
