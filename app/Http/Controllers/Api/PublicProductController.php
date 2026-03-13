@@ -15,7 +15,7 @@ class PublicProductController extends Controller
     /**
      * Cache TTL in seconds (1 hour)
      */
-    protected $cacheTtl = 3600;
+    protected $cacheTtl = 300;
 
     /**
      * Display a listing of all products for buyers
