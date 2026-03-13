@@ -110,7 +110,6 @@ Route::middleware('auth:api')->group(function () {
     
     // User profile routes
     Route::prefix('users')->group(function () {
-        Route::get('/{id}', [UserController::class, 'show']);
         Route::put('/{id}', [UserController::class, 'update']);
         Route::post('/{id}/avatar', [UserController::class, 'uploadAvatar']);
     });
