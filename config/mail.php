@@ -54,6 +54,10 @@ return [
             'transport' => 'ses',
         ],
 
+        'sendgrid_api' => [
+            'transport' => 'sendgrid_api',
+        ],
+
         'postmark' => [
             'transport' => 'postmark',
             // 'message_stream_id' => env('POSTMARK_MESSAGE_STREAM_ID'),

@@ -16,6 +16,7 @@
         "open-telemetry/exporter-otlp": "^1.4",
         "open-telemetry/sdk": "^1.13",
         "predis/predis": "^3.4",
+        "s-ichikawa/laravel-sendgrid-driver": "^4.0",
         "tymon/jwt-auth": "^2.2"
     },
     "require-dev": {
@@ -97,4 +98,3 @@
     "prefer-stable": true
     
 }
-
