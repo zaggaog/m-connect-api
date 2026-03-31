@@ -54,21 +54,11 @@ class AuthController extends Controller
     {
         return str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
     }
-
-    /**
-     * Send OTP email
-     */
-    private function sendOtpEmail($user, $otp)
+private function sendOtpEmail($user, $otp)
 {
     try {
-        Log::info('Attempting to send OTP email', [
-            'to' => $user->email,
-            'otp' => $otp,
-            'mailer' => config('mail.default'),
-            'sendgrid_key' => config('services.sendgrid.key') ? 'SET' : 'NOT SET'
-        ]);
-
-        Mail::send('emails.otp-verification', [
+        // ✅ FORCE SendGrid mailer
+        Mail::mailer('sendgrid_api')->send('emails.otp-verification', [
             'user' => $user,
             'otp' => $otp,
             'expires_in' => '10 minutes'
@@ -77,17 +67,13 @@ class AuthController extends Controller
                 ->subject('Your Verification Code - Mkulima Connect');
         });
         
-        Log::info('✅ OTP email sent successfully to: ' . $user->email);
+        Log::info('✅ OTP email sent to: ' . $user->email);
         return true;
     } catch (\Exception $e) {
-        Log::error('❌ Failed to send OTP email', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
+        Log::error('❌ Failed to send OTP email: ' . $e->getMessage());
         return false;
     }
 }
-
     /**
      * Register a new user with OTP
      */
