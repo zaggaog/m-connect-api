@@ -61,9 +61,9 @@ php artisan config:cache\n\
 php artisan route:cache\n\
 php artisan migrate --force\n\
 php artisan storage:link || true\n\
-echo "Starting Laravel server on port $PORT"\n\
-exec php artisan serve --host=0.0.0.0 --port=$PORT' > /usr/local/bin/start.sh \
-    && chmod +x /usr/local/bin/start.sh
+echo "Starting PHP server on port $PORT"\n\
+exec php -S 0.0.0.0:$PORT -t public' > /usr/local/bin/start.sh \
+&& chmod +x /usr/local/bin/start.sh
 
 # Expose port (not required by Railway but harmless)
 EXPOSE 8000
