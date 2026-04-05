@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
+use SendGrid\Mail\Mail as SendGridMail;
 
 
 class AuthController extends Controller
@@ -54,23 +55,54 @@ class AuthController extends Controller
     {
         return str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
     }
-private function sendOtpEmail($user, $otp)
+
+    /**
+     * Send OTP email
+     */
+   private function sendOtpEmail($user, $otp)
 {
     try {
-        // ✅ FORCE SendGrid mailer
-        Mail::mailer('sendgrid_api')->send('emails.otp-verification', [
+        Log::info('🔵 Starting OTP email send', [
+            'to' => $user->email,
+            'otp' => $otp
+        ]);
+
+        // ✅ Use SendGrid correctly
+        $email = new SendGridMail();
+
+        $email->setFrom(
+            config('mail.from.address'),
+            config('mail.from.name')
+        );
+
+        $email->addTo($user->email, $user->name);
+        $email->setSubject('Your Verification Code - Mkulima Connect');
+
+        // Render Blade view
+        $htmlContent = view('emails.otp-verification', [
             'user' => $user,
             'otp' => $otp,
             'expires_in' => '10 minutes'
-        ], function ($message) use ($user) {
-            $message->to($user->email, $user->name)
-                ->subject('Your Verification Code - Mkulima Connect');
-        });
-        
-        Log::info('✅ OTP email sent to: ' . $user->email);
-        return true;
+        ])->render();
+
+        $email->addContent("text/html", $htmlContent);
+
+        // Send via SendGrid API
+        $sendgrid = new \SendGrid(config('services.sendgrid.key'));
+        $response = $sendgrid->send($email);
+
+        Log::info('✅ SendGrid Response', [
+            'status_code' => $response->statusCode(),
+            'body' => $response->body(),
+        ]);
+
+        return $response->statusCode() >= 200 && $response->statusCode() < 300;
+
     } catch (\Exception $e) {
-        Log::error('❌ Failed to send OTP email: ' . $e->getMessage());
+        Log::error('❌ Failed to send OTP email', [
+            'error' => $e->getMessage(),
+            'to' => $user->email ?? 'unknown'
+        ]);
         return false;
     }
 }
