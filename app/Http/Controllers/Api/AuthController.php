@@ -681,22 +681,48 @@ public function forgotPassword(Request $request)
 /**
  * Send password reset OTP email
  */
+
 private function sendPasswordResetOtpEmail($user, $otp)
 {
     try {
-        Mail::send('emails.password-reset-otp', [
+        Log::info('🔵 Sending Password Reset OTP', [
+            'to' => $user->email
+        ]);
+
+        $email = new SendGridMail();
+
+        $email->setFrom(
+            config('mail.from.address'),
+            config('mail.from.name')
+        );
+
+        $email->addTo($user->email, $user->name);
+        $email->setSubject('Mkulima Connect: Password Reset Code');
+
+        // HTML content
+        $htmlContent = view('emails.password-reset-otp', [
             'user' => $user,
             'otp' => $otp,
             'expires_in' => '10 minutes'
-        ], function ($message) use ($user) {
-            $message->to($user->email, $user->name)
-                ->subject('Password Reset Code - Mkulima Connect');
-        });
-        
-        Log::info('Password reset OTP email sent to: ' . $user->email);
-        return true;
+        ])->render();
+
+        //  Add BOTH plain + HTML (very important)
+        $email->addContent("text/plain", "Your password reset code is: $otp. It expires in 10 minutes.");
+        $email->addContent("text/html", $htmlContent);
+
+        $sendgrid = new \SendGrid(config('services.sendgrid.key'));
+        $response = $sendgrid->send($email);
+
+        Log::info('✅ Password Reset Email Sent', [
+            'status' => $response->statusCode()
+        ]);
+
+        return $response->statusCode() >= 200 && $response->statusCode() < 300;
+
     } catch (\Exception $e) {
-        Log::error('Failed to send password reset OTP email: ' . $e->getMessage());
+        Log::error('❌ Password Reset Email Failed', [
+            'error' => $e->getMessage()
+        ]);
         return false;
     }
 }
